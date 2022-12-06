@@ -1,0 +1,79 @@
+@startuml
+
+!theme plain
+top to bottom direction
+skinparam linetype ortho
+
+class BoardController {
+  + BoardController(): 
+  ~ boardService: boardService
+}
+interface BoardDao << interface >>
+class BoardDaoImpl {
+  + BoardDaoImpl(): 
+  - namespace: String
+  - session: SqlSession
+}
+class BoardDto {
+  + BoardDto(): 
+  + BoardDto(String, String, String): 
+  - reg_date: Date
+  - writer: String
+  - comment_cnt: int
+  - view_cnt: int
+  - title: String
+  - content: String
+  - bno: Integer
+}
+class PageResolver {
+  + PageResolver(int, Integer): 
+  + PageResolver(int, Integer, Integer): 
+  + PageResolver(int, SearchItem): 
+  - totalCnt: int
+  - showNext: boolean
+  - showPrev: boolean
+  - totalPage: int
+  - endPage: int
+  + NAV_SIZE: int
+  - sc: SearchItem
+  - beginPage: int
+}
+class Person {
+  + Person(String, int): 
+  + Person(): 
+  - age: int
+  - name: String
+}
+class SearchItem {
+  + SearchItem(Integer, Integer): 
+  + SearchItem(): 
+  + SearchItem(Integer, Integer, String, String): 
+  - page: Integer
+  - option: String
+  - keyword: String
+  + MIN_PAGE_SIZE: int
+  - pageSize: Integer
+  + MAX_PAGE_SIZE: int
+  + DEFAULT_PAGE_SIZE: int
+  - offset: Integer
+}
+class User {
+  + User(): 
+  + User(String, String, String, String, Date, String, Date): 
+  - email: String
+  - pwd: String
+  - name: String
+  - id: String
+  - birth: Date
+  - sns: String
+  - reg_date: Date
+}
+interface boardService << interface >>
+class boardServiceImpI {
+  + boardServiceImpI(): 
+  ~ boardDao: BoardDao
+}
+
+BoardDaoImpl      -[#008200,dashed]-^  BoardDao         
+boardServiceImpI  -[#008200,dashed]-^  boardService     
+@enduml
