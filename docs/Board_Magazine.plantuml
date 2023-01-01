@@ -1,0 +1,184 @@
+@startuml
+actor  User as U
+participant "Web Client" as C
+participant "LookSt Server" as S
+database "LookSt DBMS Server" as DB
+
+title 매거진 게시판
+
+
+'매거진 리스트
+U -> C: 1. 매거진 게시판 리스트 GET [/lookst/board/magazine] 
+activate C
+C -> S: static asset 요청(HTML/CSS 등)
+
+activate S
+S -> DB: 매거진 게시글 전체 리스트 DB 요청
+activate DB
+DB --> S: 매거진 게시글 전체 리스트 DB 응답 
+deactivate DB
+S --> C: HTML/CSS 등 응답
+deactivate S
+C --> U: 매거진 게시판 리스트 페이지
+deactivate C
+
+
+'매거진 게시글 읽기
+U -> C: 2. 매거진 게시글 읽기 GET [/lookst/board/read/magazine]
+activate C
+C -> S: static asset 요청(HTML/CSS 등)
+activate S
+S -> DB:  매거진 게시글 DB select  요청
+activate DB
+DB --> S: 매거진 게시글 DB select  응답
+deactivate DB
+S --> C : HTML/CSS 응답
+deactivate S
+C --> U: 매거진 게시글 출력
+deactivate C
+
+' 매거진 게시글 작성
+U -> C: 3. 매거진 게시글 작성 버튼 선택 GET [/lookst/board/magazine/write]
+activate C
+C -> S: 작성 폼 요청(HTML/CSS 등)
+activate S
+S --> C: 작성 폼 응답
+deactivate S
+
+U -> C: 매거진 게시글 작성 POST [/lookst/board/magazine/write]
+
+C -> C: 매거진 게시판 글쓰기 폼 출력
+U -> C : 이미지 파일 첨부
+activate C
+C -> S : 이미지 파일 정보 저장
+deactivate C
+activate S
+S --> C : 이미지 파일 정보 저장 완료
+deactivate S
+activate C
+C --> U : 서버에서 이미지 파일 저장 및 이미지 출력
+deactivate C
+
+U -> C : 매거진 게시글 게시 클릭
+deactivate U
+activate C
+C -> S : 매거진 게시글 내용 저장
+activate S
+S -> DB :  게시글 DB insert 요청
+activate DB
+DB --> S : 게시글 DB insert 응답
+deactivate DB
+S --> C : 매거진 게시판 리스트 페이지로 redirect
+deactivate S
+C --> U : 매거진 게시판 리스트 페이지 이동 
+deactivate C
+deactivate C
+
+
+
+'매거진 게시글 수정
+U -> C: 4. 매거진 게시글 수정 버튼 클릭 GET [/lookst/board/magazine/modify]
+activate C
+C -> S: 수정 페이지 요청(HTML/CSS 등)
+activate S
+S -> S: 세션아이디와 작성자아이디 일치확인
+S -->C: 수정 페이지 응답(HTML/CSS 등)
+deactivate S
+C --> U: 매거진 게시글 수정 페이지 출력
+deactivate C
+U -> C: 매거진 게시글 수정 POST [/lookst/board/magazine/modify]
+activate C
+C -> S: 게시글 수정 요청.0
+activate S 
+S -> DB : 매거진 게시글 DB update 요청
+activate DB
+DB --> S :매거진 게시글 DB update 응답
+deactivate DB
+S --> C : 게시글 수정 응답
+deactivate S
+C --> U: 매거진 게시글 수정완료,리스트로 이동
+deactivate C
+
+'매거진 게시글 삭제
+U -> C: 5. 매거진 게시글 삭제버튼 클릭 POST [lookst/board/magazine/remove]
+activate C
+C -> S: 게시글 삭제 요청
+activate S
+S -> S: 세션아이디와 작성자아이디 일치 OR 관리자 권한 확인
+S -> DB: 매거진 게시글 DB delete 요청
+activate DB
+DB --> S : 매거진 게시글 DB delete 응답
+deactivate DB
+S -->C: 게시글 삭제 응답
+deactivate S
+C --> U: 매거진 게시글 삭제 완료 후 매거진 게시판 리스트로 이동
+deactivate C
+
+
+
+newpage
+
+
+== 댓글 리스트 출력 ==
+
+' 매거진 상세페이지 댓글
+
+U -> C: 6. 매거진 상세페이지 댓글 리스트 GET [lookst/comments] 
+activate C
+C -> S: static asset 요청(HTML/CSS 등
+activate S
+S -> DB: 매거진 상세페이지 전체 댓글 리스트 DB 요청
+activate DB
+DB --> S: 매거진 상세페이지 전체 댓글 리스트 DB 응답 
+deactivate DB
+S --> C: HTML/CSS 등 응답
+deactivate S
+C --> U: 매거진 상세페이지 댓글 리스트 출력
+deactivate C
+
+== 댓글 CREATE  ==
+
+' 매거진 상세페이지 댓글 작성
+
+U -> C: 7. 댓글 작성 버튼 클릭
+activate C
+C -> C: '댓글 작성' 버튼 선택 POST [lookst/comments]
+S -> DB: 댓글 DB INSERT 요청
+activate DB
+DB --> S: 댓글 DB INSERT 응답
+deactivate DB
+C -> C: 댓글 페이지 응답
+C --> U: 댓글 리스트 노출
+deactivate C
+
+== 댓글 UPDATE  ==
+
+' 매거진 상세페이지 댓글 수정
+
+U -> C: 8. 댓글 수정 버튼 클릭
+activate C
+C -> C: '댓글 수정' 버튼 선택 PATCH [lookst/comments/{comment_no}]
+S -> DB: 댓글 DB UPDATE 요청
+activate DB
+DB --> S: 댓글 DB UPDATE 응답
+deactivate DB
+C -> C: 댓글 페이지 응답
+C --> U: 댓글 리스트 노출
+deactivate C
+
+== 댓글 DELETE  ==
+
+' 매거진 상세페이지 댓글 삭제
+
+U -> C: 9. 댓글 삭제 버튼 클릭
+activate C
+C -> C: '댓글 삭제' 버튼 선택 DELETE [lookst/comments/{cno}]
+S -> DB: 댓글 DB DELETE 요청
+activate DB
+DB --> S: 댓글 DB DELETE 응답
+deactivate DB
+C -> C: 댓글 페이지 응답
+C --> U: 댓글 리스트 노출
+deactivate C
+
+

@@ -1,0 +1,26 @@
+@startuml
+actor  User as U
+participant "Web Client" as C
+participant "LookSt Server" as S
+database "LookSt DBMS Server" as DB
+
+title 검색
+
+U -> C : 1.검색 GET(/lookst/searchResult)
+activate C
+C -> S : static asset(HTML,CSS) 요청
+activate S
+S -> DB : title, Contents(Keyword) select 요청
+activate DB
+DB --> S : title, Contents(Keyword) select 응답
+S -> DB : title(Keyword) select 요청
+DB --> S : title(Keyword) select 응답
+S -> DB : User(Keyword) select 요청
+DB--> S : User(Keyword) select 응답
+deactivate DB
+S --> C : static asset(HTML,CSS) 응답
+deactivate S
+C -> C : 검색어가 없다면 빈 리스트 출력
+C --> U : 해당 검색결과 페이지 노출
+deactivate C
+

@@ -1,0 +1,119 @@
+@startuml
+actor  User as U
+participant "Web Client" as C
+participant "LookSt Server" as S
+database "LookSt DBMS Server" as DB
+
+title QNA
+
+' QNA 리스트
+U -> C: 1. QNA 리스트 GET [/lookst/board/list]
+activate C
+C -> S: static asset 요청(HTML/CSS 등)
+activate S
+S --> C: HTML/CSS 등 응답
+deactivate S
+C -> C: 0. 로그인이 되어 있지 않을 경우 로그인 페이지로 redirection
+C --> U: 로그인 입력 페이지 [/lookst/member/login]
+deactivate C
+U -> C: 2. 아이디 / 패스워드드 입력 
+activate C
+C -> C: 세션에 아이디 저장 
+C -> C: QNA 리스트 페이지로 redirection GET [/lookst/board/list]
+
+C -> S: static asset 요청(HTML/CSS 등)
+activate S
+S -> DB: QNA 리스트 전체 게시글 요청
+activate DB
+DB --> S :QNA 리스트 전체 게시글 응답
+deactivate DB
+S --> C : HTML/CSS 응답
+deactivate S
+
+C --> U: QNA 리스트 페이지
+deactivate C
+
+' QNA 게시판 읽기
+U -> C: 3. QNA 게시글 읽기 GET: [/lookst/board/read]
+activate C
+
+C -> S: static asset 요청(HTML/CSS 등)
+
+activate S
+S -> DB: QNA 게시글 select
+activate DB
+DB --> S :QNA 게시글 select
+deactivate DB
+S --> C : HTML/CSS 응답
+deactivate S
+
+C --> U: QNA 게시글 출력
+deactivate C
+
+' QNA 작성
+U -> C: 4. QNA 작성 버튼 선택 GET [/lookst/board/write]
+activate C
+C -> S: QNA 작성 폼 요청(HTML/CSS 등)
+activate S
+S --> C: QNA 작성 폼 응답
+deactivate S
+
+U -> C: 5. QNA 게시글 작성 POST [/lookst/board/write]
+
+C -> C: QNA 작성 폼 출력
+C -> C: QNA 작성 확인 선택
+
+S -> DB: QNA DB insert 요청
+activate DB
+DB --> S: QNA DB insert 응답
+deactivate DB
+C -> C: QNA 글 리스트 페이지로 redirection
+C --> U: QNA 글 리스트 페이지 노출
+deactivate C
+
+
+'QNA 수정
+
+U -> C: 6. QNA 게시글 수정버튼 클릭 GET [/lookst/board/modify]
+activate C
+C -> S: QNA 수정 페이지 요청(HTML/CSS 등)
+activate S
+S -> S: 세션아이디와 작성자아이디 일치확인
+S -->C: QNA 수정 페이지 응답(HTML/CSS 등)
+deactivate S
+C --> U: QNA 수정 페이지 출력
+
+U -> C: 7. QNA 게시글 수정 POST [/lookst/board/modify]
+C -> S: QNA 게시글 수정 요청 
+activate S
+S -> DB: QNA 게시글 DB update 요청
+activate DB
+DB --> S :QNA 게시글 DB update 응답
+deactivate DB
+S --> C : QNA 게시글 수정 응답
+deactivate S
+C --> U: QNA 게시글 수정완료 후 리스트로 이동
+deactivate C
+
+'문의사항 삭제
+U -> C: 8. QNA 게시글 삭제버튼 클릭 POST [/lookst/board/remove]
+activate C
+C -> S: QNA 게시글 삭제 요청
+activate S
+S -> S: 세션 아이디와 작성자 아이디 일치 OR 관리자 권한 확인
+S -> DB: QNA 게시글 DB delete 요청
+activate DB
+DB --> S : QNA 게시글 DB delete 응답
+deactivate DB
+S -->C: QNA 게시글 삭제 응답
+deactivate S
+C --> U: QNA 게시글 삭제 완료 리스트로 이동
+deactivate C
+
+
+
+
+
+
+
+@enduml

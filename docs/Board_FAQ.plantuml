@@ -1,0 +1,25 @@
+@startuml
+actor  User as U
+participant "Web Client" as C
+participant "LookSt Server" as S
+database "LookSt DBMS Server" as DB
+
+title FAQ
+
+
+'FAQ 게시판 리스트
+U -> C: 1.FAQ 게시판 리스트\nGET: [:/lookst/board/list/faq]
+
+activate C
+C -> S: static asset 요청 (HTML/CSS 등)
+
+activate S
+S -> DB : FAQ 게시글 전체 리스트 DB 요청
+activate DB
+DB --> S : FAQ 게시글 전체 리스트 DB 응답
+deactivate DB
+S --> C : HTML/CSS 응답
+deactivate S
+
+C --> U: FAQ 게시판 리스트 출력
+deactivate C
